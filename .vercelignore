@@ -1,0 +1,5 @@
+anchor_project/
+frontend/raffle-frontend/
+node_modules/
+.git/
+*.log
