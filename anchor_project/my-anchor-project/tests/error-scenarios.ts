@@ -13,7 +13,7 @@ describe("raffle - error scenarios", () => {
     const creator = provider.wallet.publicKey;
     
     const [rafflePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("raffle"), creator.toBuffer()],
+      [Buffer.from("raffle_v2"), creator.toBuffer()],
       program.programId
     );
 
@@ -48,7 +48,7 @@ describe("raffle - error scenarios", () => {
 
     // Get the raffle that should already exist (and might have ended)
     const [rafflePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("raffle"), creator.toBuffer()],
+      [Buffer.from("raffle_v2"), creator.toBuffer()],
       program.programId
     );
 
@@ -67,7 +67,7 @@ describe("raffle - error scenarios", () => {
     }
 
     const [ticketPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("ticket"), rafflePda.toBuffer(), new BN(raffle.ticketCount).toArrayLike(Buffer, "le", 4)],
+      [Buffer.from("ticket_v2"), rafflePda.toBuffer(), new BN(raffle.ticketCount).toArrayLike(Buffer, "le", 4)],
       program.programId
     );
 
@@ -95,7 +95,7 @@ describe("raffle - error scenarios", () => {
     const creator = provider.wallet.publicKey;
 
     const [rafflePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("raffle"), creator.toBuffer()],
+      [Buffer.from("raffle_v2"), creator.toBuffer()],
       program.programId
     );
 
@@ -129,7 +129,7 @@ describe("raffle - error scenarios", () => {
     const creator = provider.wallet.publicKey;
 
     const [rafflePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("raffle"), creator.toBuffer()],
+      [Buffer.from("raffle_v2"), creator.toBuffer()],
       program.programId
     );
 
@@ -162,7 +162,7 @@ describe("raffle - error scenarios", () => {
     const creator = provider.wallet.publicKey;
     
     const [rafflePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("raffle"), creator.toBuffer()],
+      [Buffer.from("raffle_v2"), creator.toBuffer()],
       program.programId
     );
 
@@ -181,7 +181,7 @@ describe("raffle - error scenarios", () => {
 
     // Try to claim with any ticket
     const [ticketPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("ticket"), rafflePda.toBuffer(), Buffer.from([0, 0, 0, 0])],
+      [Buffer.from("ticket_v2"), rafflePda.toBuffer(), Buffer.from([0, 0, 0, 0])],
       program.programId
     );
 
@@ -209,7 +209,7 @@ describe("raffle - error scenarios", () => {
     const creator = provider.wallet.publicKey;
     
     const [rafflePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("raffle"), creator.toBuffer()],
+      [Buffer.from("raffle_v2"), creator.toBuffer()],
       program.programId
     );
 
@@ -228,7 +228,7 @@ describe("raffle - error scenarios", () => {
 
     // Get winner ticket
     const [ticketPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("ticket"), rafflePda.toBuffer(), new BN(raffle.winner).toArrayLike(Buffer, "le", 4)],
+      [Buffer.from("ticket_v2"), rafflePda.toBuffer(), new BN(raffle.winner).toArrayLike(Buffer, "le", 4)],
       program.programId
     );
 
@@ -256,7 +256,7 @@ describe("raffle - error scenarios", () => {
     const creator = provider.wallet.publicKey;
 
     const [rafflePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("raffle"), creator.toBuffer()],
+      [Buffer.from("raffle_v2"), creator.toBuffer()],
       program.programId
     );
 

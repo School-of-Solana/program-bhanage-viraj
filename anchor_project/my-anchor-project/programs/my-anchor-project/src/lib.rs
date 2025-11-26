@@ -181,7 +181,7 @@ pub struct InitializeRaffle<'info> {
     #[account(
         init,
         payer = creator,
-        seeds = [b"raffle", creator.key().as_ref()],
+        seeds = [b"raffle_v2", creator.key().as_ref()],
         bump,
         space = 8 + 32 + 8 + 4 + 8 + 5 + 1 + 1, // discriminator + creator + ticket_price + ticket_count + end_ts + Option<u32> winner + prize_claimed + bump
     )]
@@ -209,7 +209,7 @@ pub struct BuyTicket<'info> {
     #[account(
         init,
         payer = buyer,
-        seeds = [b"ticket", raffle.key().as_ref(), raffle.ticket_count.to_le_bytes().as_ref()],
+        seeds = [b"ticket_v2", raffle.key().as_ref(), raffle.ticket_count.to_le_bytes().as_ref()],
         bump,
         space = 8 + 32 + 4 + 32 + 1,
     )]
@@ -242,13 +242,13 @@ pub struct ClaimPrize<'info> {
 
     #[account(
         mut,
-        seeds = [b"raffle", raffle.creator.as_ref()],
+        seeds = [b"raffle_v2", raffle.creator.as_ref()],
         bump = raffle.bump,
     )]
     pub raffle: Account<'info, Raffle>,
 
     #[account(
-        seeds = [b"ticket", raffle.key().as_ref(), ticket.ticket_number.to_le_bytes().as_ref()],
+        seeds = [b"ticket_v2", raffle.key().as_ref(), ticket.ticket_number.to_le_bytes().as_ref()],
         bump = ticket.bump,
     )]
     pub ticket: Account<'info, Ticket>,

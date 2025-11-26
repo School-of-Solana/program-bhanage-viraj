@@ -17,7 +17,7 @@ describe("raffle", () => {
     const creator = provider.wallet.publicKey;
 
     [rafflePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("raffle"), creator.toBuffer()],
+      [Buffer.from("raffle_v2"), creator.toBuffer()],
       program.programId
     );
 
@@ -45,7 +45,7 @@ describe("raffle", () => {
     
     // Calculate ticket PDA
     const [ticketPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("ticket"), rafflePda.toBuffer(), Buffer.from([0, 0, 0, 0])], // ticket_count = 0
+      [Buffer.from("ticket_v2"), rafflePda.toBuffer(), Buffer.from([0, 0, 0, 0])], // ticket_count = 0
       program.programId
     );
 
@@ -89,7 +89,7 @@ describe("raffle", () => {
     // Get winner's ticket PDA
     const winnerTicketNumber = raffle.winner;
     const [winnerTicketPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("ticket"), rafflePda.toBuffer(), Buffer.from([winnerTicketNumber, 0, 0, 0])],
+      [Buffer.from("ticket_v2"), rafflePda.toBuffer(), Buffer.from([winnerTicketNumber, 0, 0, 0])],
       program.programId
     );
 

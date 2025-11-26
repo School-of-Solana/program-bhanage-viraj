@@ -12,7 +12,7 @@ export const getConnection = () =>
 // --- PDA HELPERS BASED ON YOUR IDL ---
 export const findRafflePDA = (creator: PublicKey) =>
   PublicKey.findProgramAddressSync(
-    [Buffer.from("raffle"), creator.toBuffer()],
+    [Buffer.from("raffle_v2"), creator.toBuffer()],
     PROGRAM_ID
   );
 
@@ -25,7 +25,7 @@ export const findVaultPDA = (rafflePda: PublicKey) =>
 export const findTicketPDA = (rafflePda: PublicKey, ticketNumber: number) =>
   PublicKey.findProgramAddressSync(
     [
-      Buffer.from("ticket"),
+      Buffer.from("ticket_v2"),
       rafflePda.toBuffer(),
       new BN(ticketNumber).toArrayLike(Buffer, "le", 4),
     ],

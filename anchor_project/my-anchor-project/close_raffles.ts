@@ -11,7 +11,7 @@ const wallets = [
 
 async function findRafflePDA(creator: PublicKey) {
   return PublicKey.findProgramAddressSync(
-    [Buffer.from("raffle"), creator.toBuffer()],
+    [Buffer.from("raffle_v2"), creator.toBuffer()],
     programId
   );
 }
