@@ -1,6 +1,6 @@
 # Project Description
 
-**Deployed Frontend URL:** [TO BE DEPLOYED - Frontend is complete and ready for deployment]
+**Deployed Frontend URL: https://program-bhanage-viraj5.vercel.app/
 
 **Solana Program ID:** `Gxi64mihQTXmwW4PXGpNV7inGKBxrx2i9nPpUKL2iNkH` (Deployed on Devnet)
 
