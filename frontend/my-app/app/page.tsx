@@ -390,7 +390,18 @@ export default function Home() {
       const buyer = anchorWallet.publicKey;
 
       // ALWAYS fetch fresh on-chain data to avoid stale ticket count
-      const freshRaffleAccount = await (program.account as any).raffle.fetch(rafflePubkey);
+      let freshRaffleAccount;
+      try {
+        freshRaffleAccount = await (program.account as any).raffle.fetch(rafflePubkey);
+      } catch (e: any) {
+        if (e.message?.includes("Invalid bool")) {
+          setStatus("❌ This is an old incompatible raffle. Please refresh the page.");
+          await fetchAllRaffles();
+          return;
+        }
+        throw e;
+      }
+      
       const ticketNumber = freshRaffleAccount.ticketCount;
       const [ticket] = findTicketPDA(rafflePubkey, ticketNumber);
 
@@ -490,7 +501,18 @@ export default function Home() {
         .rpc();
 
       // Fetch the winner's address
-      const freshRaffleAccount = await (program.account as any).raffle.fetch(raffle.publicKey);
+      let freshRaffleAccount;
+      try {
+        freshRaffleAccount = await (program.account as any).raffle.fetch(raffle.publicKey);
+      } catch (e: any) {
+        if (e.message?.includes("Invalid bool")) {
+          setStatus("❌ This is an old incompatible raffle. Please refresh the page.");
+          await fetchAllRaffles();
+          return;
+        }
+        throw e;
+      }
+      
       if (freshRaffleAccount.winner !== null && freshRaffleAccount.winner !== undefined) {
         try {
           const [ticketPda] = findTicketPDA(raffle.publicKey, freshRaffleAccount.winner);
@@ -570,7 +592,17 @@ export default function Home() {
       const rafflePubkey = raffle.publicKey;
       const [vaultPda] = findVaultPDA(rafflePubkey);
 
-      const currentRaffleAccount = await (program.account as any).raffle.fetch(rafflePubkey);
+      let currentRaffleAccount;
+      try {
+        currentRaffleAccount = await (program.account as any).raffle.fetch(rafflePubkey);
+      } catch (e: any) {
+        if (e.message?.includes("Invalid bool")) {
+          setStatus("❌ This is an old incompatible raffle. Please refresh the page.");
+          await fetchAllRaffles();
+          return;
+        }
+        throw e;
+      }
 
       if (currentRaffleAccount.winner === null || currentRaffleAccount.winner === undefined) {
         setStatus("No winner drawn yet.");
