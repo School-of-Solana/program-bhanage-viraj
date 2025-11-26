@@ -95,23 +95,43 @@ export default function Home() {
 
   // Fetch all raffles
   const fetchAllRaffles = async () => {
-    if (!program) return;
+    if (!program || !connection) return;
     try {
       setStatus("Fetching raffles...");
-      const accounts = await (program.account as any).raffle.all();
+      
+      // Fetch all program accounts manually to handle deserialization errors per account
+      const programAccounts = await connection.getProgramAccounts(program.programId, {
+        filters: [
+          {
+            memcmp: {
+              offset: 0,
+              // Raffle discriminator from IDL
+              bytes: anchor.utils.bytes.bs58.encode(
+                Buffer.from([217, 173, 138, 10, 142, 200, 173, 138])
+              ),
+            },
+          },
+        ],
+      });
 
-      const parsedRaffles = (await Promise.all(accounts.map(async (acc: any) => {
+      const parsedRaffles = (await Promise.all(programAccounts.map(async ({ pubkey, account }) => {
         try {
+          // Try to deserialize the raffle account
+          const raffleAccount = (program.account as any).raffle.coder.accounts.decode(
+            "raffle",
+            account.data
+          );
+
           const raffle = {
-            publicKey: acc.publicKey,
-            account: acc.account,
+            publicKey: pubkey,
+            account: raffleAccount,
             winnerAddress: null as string | null,
           };
 
           // If a winner is drawn, fetch the ticket to get the winner's address
-          if (acc.account.winner !== null && acc.account.winner !== undefined) {
+          if (raffleAccount.winner !== null && raffleAccount.winner !== undefined) {
             try {
-              const [ticketPda] = findTicketPDA(acc.publicKey, acc.account.winner);
+              const [ticketPda] = findTicketPDA(pubkey, raffleAccount.winner);
               const ticketAccount = await (program.account as any).ticket.fetch(ticketPda);
               raffle.winnerAddress = ticketAccount.buyer.toString();
             } catch (e) {
@@ -120,8 +140,8 @@ export default function Home() {
           }
           return raffle;
         } catch (e: any) {
-          // Skip raffles that can't be deserialized (old account structure)
-          console.warn("Skipping incompatible raffle:", acc.publicKey.toString(), e.message);
+          // Skip raffles that can't be deserialized (old account structure with invalid bool values)
+          console.warn("Skipping incompatible raffle:", pubkey.toString(), e.message);
           return null;
         }
       }))).filter((raffle) => raffle !== null);
