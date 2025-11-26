@@ -170,6 +170,84 @@ pub mod my_anchor_project {
 
         Ok(())
     }
+
+    /// Migration instruction to fix old raffle accounts with invalid bool values
+    /// This rewrites the account data with correct discriminator and structure
+    pub fn migrate_raffle(ctx: Context<MigrateRaffle>) -> Result<()> {
+        let old_account = &ctx.accounts.old_raffle;
+        let account_info = old_account.to_account_info();
+        
+        // Read existing data carefully to preserve valid fields
+        let data = account_info.data.borrow();
+        
+        // Parse existing fields (skip discriminator at [0..8])
+        let mut creator_bytes = [0u8; 32];
+        creator_bytes.copy_from_slice(&data[8..40]);
+        let creator = Pubkey::new_from_array(creator_bytes);
+        
+        let ticket_price = u64::from_le_bytes(data[40..48].try_into().unwrap());
+        let ticket_count = u32::from_le_bytes(data[48..52].try_into().unwrap());
+        let end_ts = i64::from_le_bytes(data[52..60].try_into().unwrap());
+        
+        // Handle Option<u32> winner (1 byte tag + 4 bytes value)
+        let winner = if data[60] == 0 {
+            None
+        } else {
+            Some(u32::from_le_bytes(data[61..65].try_into().unwrap()))
+        };
+        
+        // Extract bump (should be at the end)
+        let bump = data[data.len() - 1];
+        
+        drop(data); // Release borrow
+        
+        // Create new raffle struct with corrected prize_claimed
+        let new_raffle = Raffle {
+            creator,
+            ticket_price,
+            ticket_count,
+            end_ts,
+            winner,
+            prize_claimed: false, // ✅ Reset to valid boolean
+            bump,
+        };
+        
+        // 1. Serialize struct (without discriminator)
+        let serialized_struct = new_raffle.try_to_vec()?;
+        
+        // 2. Calculate correct size (discriminator + struct)
+        let new_size = 8 + serialized_struct.len();
+        
+        // 3. Realloc to correct size using new API
+        account_info.resize(new_size)?;
+        
+        // 4. Borrow account data mutably
+        let mut data = account_info.data.borrow_mut();
+        
+        // 5. Write discriminator (FIRST 8 BYTES)
+        // Get discriminator bytes for Raffle account
+        let disc: [u8; 8] = [143, 133, 63, 173, 138, 10, 142, 200]; // Raffle discriminator from IDL
+        data[..8].copy_from_slice(&disc);
+        
+        // 6. Write struct bytes AFTER discriminator
+        data[8..8 + serialized_struct.len()].copy_from_slice(&serialized_struct);
+        
+        msg!("✅ Migration successful for raffle: {}", account_info.key());
+        
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct MigrateRaffle<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    
+    /// CHECK: This is the old raffle account that needs migration
+    #[account(mut)]
+    pub old_raffle: UncheckedAccount<'info>,
+    
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]

@@ -350,6 +350,39 @@
           "type": "i64"
         }
       ]
+    },
+    {
+      "name": "migrate_raffle",
+      "docs": [
+        "Migration instruction to fix old raffle accounts with invalid bool values",
+        "This rewrites the account data with correct discriminator and structure"
+      ],
+      "discriminator": [
+        131,
+        66,
+        165,
+        42,
+        9,
+        141,
+        140,
+        5
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "old_raffle",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
     }
   ],
   "accounts": [
