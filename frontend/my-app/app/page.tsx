@@ -105,21 +105,39 @@ export default function Home() {
           {
             memcmp: {
               offset: 0,
-              // Raffle discriminator from IDL
+              // Raffle discriminator from IDL: [143, 133, 63, 173, 138, 10, 142, 200]
               bytes: anchor.utils.bytes.bs58.encode(
-                Buffer.from([217, 173, 138, 10, 142, 200, 173, 138])
+                Buffer.from([143, 133, 63, 173, 138, 10, 142, 200])
               ),
             },
           },
         ],
       });
 
+      console.log(`Found ${programAccounts.length} raffle account(s) on-chain`);
+
       const parsedRaffles = (await Promise.all(programAccounts.map(async ({ pubkey, account }) => {
         try {
+          // Manually parse the account data to handle invalid boolean values
+          const data = account.data;
+          
+          // Check if the account has enough data for the raffle structure
+          if (data.length < 8 + 32 + 8 + 4 + 8 + 5 + 1 + 1) {
+            console.warn("Skipping account with insufficient data:", pubkey.toString());
+            return null;
+          }
+
+          // Check the prize_claimed boolean at offset 8 + 32 + 8 + 4 + 8 + 5 = 65
+          const prizeClaimedByte = data[65];
+          if (prizeClaimedByte !== 0 && prizeClaimedByte !== 1) {
+            console.warn(`Skipping raffle ${pubkey.toString()} with invalid bool value: ${prizeClaimedByte}`);
+            return null;
+          }
+
           // Try to deserialize the raffle account
           const raffleAccount = (program.account as any).raffle.coder.accounts.decode(
             "raffle",
-            account.data
+            data
           );
 
           const raffle = {
